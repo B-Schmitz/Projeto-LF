@@ -28,6 +28,25 @@ public class Principal extends javax.swing.JFrame {
         vProducaoVazio = producoesVazias.split(",");
 
         producoesVazias = "";
+        //teste nao ta funcionando ainda
+        String prod = producoes;
+         for (int i = 0; i < vProducoes.length; i++) {
+            for (int j = 0; j < vProducoes[i].length(); j++) {
+               for(int t = 0; t < vProducaoVazio.length; t++){
+                   if(vProducaoVazio[t].charAt(0) == vProducoes[i].charAt(j)){
+                       
+                       prod += "\n" + vetorNproducoes[i]+ "-" + vProducoes[i].replace(vProducaoVazio[t], "");
+                       
+                   }
+                   
+               }
+               if('&' == vProducoes[i].charAt(j)){
+                       prod += "\n" + vetorNproducoes[i] + "-" + vProducoes[i].replace("&", "");
+                   }
+            }
+         }
+         System.out.println("tetetet: " + prod);
+        
     }
 
     public Principal() {
