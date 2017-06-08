@@ -9,7 +9,8 @@ public class Principal extends javax.swing.JFrame {
 
     private String producoesVazias = "";
     // Vetores que armazenam a Gramatica separadamente
-    private String[] vTerminais, vNaoTerminais, vProducoes, vetorNproducoes, vProducaoVazio;
+    private String[] vTerminais, vNaoTerminais, vProducoes, vetorNproducoes; //(Vetor dos não terminais de todas produções)
+    private String[] vProducaoVazio; // (Explique-me)
 
     public Principal() {
         initComponents();
@@ -29,10 +30,10 @@ public class Principal extends javax.swing.JFrame {
         TextGramatica = new javax.swing.JTextArea();
         TextTerminais = new javax.swing.JTextField();
         TextNaoTerminais = new javax.swing.JTextField();
-        TextSimboloInicial = new javax.swing.JTextField();
         jScrollPane1 = new javax.swing.JScrollPane();
         TextProducoes = new javax.swing.JTextArea();
         BotaoSimplificacao = new javax.swing.JButton();
+        TextSimboloInicial = new javax.swing.JFormattedTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -68,19 +69,19 @@ public class Principal extends javax.swing.JFrame {
         TextTerminais.setForeground(new java.awt.Color(255, 255, 255));
         TextTerminais.setText("a,b,c,d,e");
         TextTerminais.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Terminais:", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(102, 153, 255))); // NOI18N
+        TextTerminais.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                TextTerminaisFocusLost(evt);
+            }
+        });
 
         TextNaoTerminais.setBackground(new java.awt.Color(51, 51, 51));
         TextNaoTerminais.setForeground(new java.awt.Color(255, 255, 255));
         TextNaoTerminais.setText("J,G,H,K,L");
         TextNaoTerminais.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Não Terminais:", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(102, 153, 255))); // NOI18N
-
-        TextSimboloInicial.setBackground(new java.awt.Color(51, 51, 51));
-        TextSimboloInicial.setForeground(new java.awt.Color(255, 255, 255));
-        TextSimboloInicial.setText("J");
-        TextSimboloInicial.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Simbolo Inicial:", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(102, 153, 255))); // NOI18N
-        TextSimboloInicial.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                TextSimboloInicialActionPerformed(evt);
+        TextNaoTerminais.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                TextNaoTerminaisFocusLost(evt);
             }
         });
 
@@ -94,22 +95,23 @@ public class Principal extends javax.swing.JFrame {
 
         BotaoSimplificacao.setText("Simplificação Combinada");
 
+        TextSimboloInicial.setBackground(new java.awt.Color(51, 51, 51));
+        TextSimboloInicial.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Simbolo Inicial:", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(102, 153, 255))); // NOI18N
+        TextSimboloInicial.setForeground(new java.awt.Color(255, 255, 255));
+        try {
+            TextSimboloInicial.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.MaskFormatter("U")));
+        } catch (java.text.ParseException ex) {
+            ex.printStackTrace();
+        }
+        TextSimboloInicial.setText("J");
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(35, 35, 35)
+                .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(TextSimboloInicial, javax.swing.GroupLayout.PREFERRED_SIZE, 271, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addComponent(TextTerminais)
-                                .addComponent(TextNaoTerminais)
-                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 271, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(18, 18, 18)
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 315, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                             .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
@@ -121,13 +123,21 @@ public class Principal extends javax.swing.JFrame {
                                 .addGap(18, 18, 18)
                                 .addComponent(BotaoProducoesUnitarias)))
                         .addGap(18, 18, 18)
-                        .addComponent(BotaoSimplificacao)))
-                .addContainerGap(34, Short.MAX_VALUE))
+                        .addComponent(BotaoSimplificacao))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(TextSimboloInicial)
+                            .addComponent(TextTerminais)
+                            .addComponent(TextNaoTerminais)
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 271, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 315, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(29, 29, 29)
+                .addGap(30, 30, 30)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(TextSimboloInicial, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -138,9 +148,9 @@ public class Principal extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jScrollPane2))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(BotaoInserirGramatica)
                             .addComponent(BotaoProducoesUnitarias))
@@ -148,9 +158,9 @@ public class Principal extends javax.swing.JFrame {
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(BotaoProducoesVazias)
                             .addComponent(BotaoSimbolosInuteis)))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(21, 21, 21)
-                        .addComponent(BotaoSimplificacao)))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addComponent(BotaoSimplificacao)
+                        .addGap(12, 12, 12)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -162,17 +172,13 @@ public class Principal extends javax.swing.JFrame {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void TextSimboloInicialActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_TextSimboloInicialActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_TextSimboloInicialActionPerformed
 
     private void BotaoInserirGramaticaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BotaoInserirGramaticaActionPerformed
         simboloInicial = TextSimboloInicial.getText();
@@ -184,7 +190,10 @@ public class Principal extends javax.swing.JFrame {
         vNaoTerminais = naoTerminais.split(",");
         vProducoes = producoes.split("\n");
         TextGramatica.setText(TextProducoes.getText());
-
+        
+        // Percorre todo vetor de não-terminais e o vetor de produções
+        // Compara a primeira letra, se forem iguais armazena em string auxiliar
+        // Vetor de Não-Terminais (Todos Simbolos da Esquerda das produções) é armazenado em vetorNproducoes
         String aux = "";
         for (int i = 0; i < vNaoTerminais.length; i++) {
             for (int j = 0; j < vProducoes.length; j++) {
@@ -200,13 +209,12 @@ public class Principal extends javax.swing.JFrame {
         }
         vetorNproducoes = aux.split(",");
         aux = "";
+                
         // Remove o Não-Termimal e o "-" da Produção
         for (int i = 0; i < vProducoes.length; i++) {
             vProducoes[i] = vProducoes[i].replace(vProducoes[i].charAt(0) + "", "");
             vProducoes[i] = vProducoes[i].replace(vProducoes[i].charAt(0) + "", "");
         }
-        //ProducoesVazias();
-
     }//GEN-LAST:event_BotaoInserirGramaticaActionPerformed
 
     private void BotaoProducoesVaziasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BotaoProducoesVaziasActionPerformed
@@ -214,30 +222,32 @@ public class Principal extends javax.swing.JFrame {
         for (int i = 0; i < vProducoes.length; i++) {
             for (int j = 0; j < vProducoes[i].length(); j++) {
 
+                // Le todo vetor de produções cada um (i) letra por letra (j)
                 if (vProducoes[i].charAt(j) == '&') {
-                    if ("".equals(producoesVazias)) {
+                    if ("".equals(producoesVazias)) { // Só entra aqui uma vez (Primeira letra)
                         producoesVazias += vetorNproducoes[i];
                     } else {
-
-                        producoesVazias += "," + vetorNproducoes[i];
+                        producoesVazias += "," + vetorNproducoes[i]; // (Separa por virgula)
                     }
                 }
 
             }
         }
-        vProducaoVazio = producoesVazias.split(",");
-
-        producoesVazias = "";
-        //teste nao ta funcionando ainda
+        vProducaoVazio = producoesVazias.split(","); // Armazena num vetor cada letra não terminal que gera produção vazia
+        producoesVazias = ""; // Limpa para próxima produção
+       
+        // Teste nao ta funcionando ainda
         String prod = producoes;
+        // Percorre o vetor de produções e depois em "j" percorre cada letra de cada produção[i]
+        // Percorre também o vProducaoVazio(Os não terminais que geram produçoes vazias)
         for (int i = 0; i < vProducoes.length; i++) {
             for (int j = 0; j < vProducoes[i].length(); j++) {
                 for (int t = 0; t < vProducaoVazio.length; t++) {
+                   
                     if (vProducaoVazio[t].charAt(0) == vProducoes[i].charAt(j)) {
+                        // Produções recebe o Não terminal +????
                         prod += "\n" + vetorNproducoes[i] + "-" + vProducoes[i].replace(vProducaoVazio[t], "");
                     }
-
-
                 }
                 if ('&' == vProducoes[i].charAt(j)) {
                     prod += "\n" + vetorNproducoes[i] + "-" + vProducoes[i].replace("&", "");
@@ -249,6 +259,14 @@ public class Principal extends javax.swing.JFrame {
         TextGramatica.setText(prod);
 
     }//GEN-LAST:event_BotaoProducoesVaziasActionPerformed
+
+    private void TextTerminaisFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_TextTerminaisFocusLost
+        TextTerminais.setText(TextTerminais.getText().toLowerCase());
+    }//GEN-LAST:event_TextTerminaisFocusLost
+
+    private void TextNaoTerminaisFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_TextNaoTerminaisFocusLost
+       TextNaoTerminais.setText(TextNaoTerminais.getText().toUpperCase());
+    }//GEN-LAST:event_TextNaoTerminaisFocusLost
 
     /**
      * @param args the command line arguments
@@ -292,7 +310,7 @@ public class Principal extends javax.swing.JFrame {
     private javax.swing.JTextArea TextGramatica;
     private javax.swing.JTextField TextNaoTerminais;
     private javax.swing.JTextArea TextProducoes;
-    private javax.swing.JTextField TextSimboloInicial;
+    private javax.swing.JFormattedTextField TextSimboloInicial;
     private javax.swing.JTextField TextTerminais;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
