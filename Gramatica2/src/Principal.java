@@ -1,4 +1,6 @@
 
+import java.util.ArrayList;
+
 public class Principal extends javax.swing.JFrame {
 
     // Váriaveis usadas para armazenar os TextField
@@ -6,11 +8,14 @@ public class Principal extends javax.swing.JFrame {
     private String terminais;
     private String naoTerminais;
     private String producoes;
+    private String prod = "";
 
     private String producoesVazias = "";
     // Vetores que armazenam a Gramatica separadamente
     private String[] vTerminais, vNaoTerminais, vProducoes, vetorNproducoes; //(Vetor dos não terminais de todas produções)
     private String[] vProducaoVazio; // (Explique-me)
+
+    NaoTerminal ClasseNaoTerminal[];
 
     public Principal() {
         initComponents();
@@ -181,16 +186,16 @@ public class Principal extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void BotaoInserirGramaticaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BotaoInserirGramaticaActionPerformed
-        simboloInicial = TextSimboloInicial.getText();
-        terminais = TextTerminais.getText();
-        naoTerminais = TextNaoTerminais.getText();
-        producoes = TextProducoes.getText();
+        simboloInicial = TextSimboloInicial.getText().trim();
+        terminais = TextTerminais.getText().trim();
+        naoTerminais = TextNaoTerminais.getText().trim();
+        producoes = TextProducoes.getText().trim();
 
         vTerminais = terminais.split(",");
         vNaoTerminais = naoTerminais.split(",");
         vProducoes = producoes.split("\n");
         TextGramatica.setText(TextProducoes.getText());
-        
+
         // Percorre todo vetor de não-terminais e o vetor de produções
         // Compara a primeira letra, se forem iguais armazena em string auxiliar
         // Vetor de Não-Terminais (Todos Simbolos da Esquerda das produções) é armazenado em vetorNproducoes
@@ -209,7 +214,7 @@ public class Principal extends javax.swing.JFrame {
         }
         vetorNproducoes = aux.split(",");
         aux = "";
-                
+
         // Remove o Não-Termimal e o "-" da Produção
         for (int i = 0; i < vProducoes.length; i++) {
             vProducoes[i] = vProducoes[i].replace(vProducoes[i].charAt(0) + "", "");
@@ -218,45 +223,131 @@ public class Principal extends javax.swing.JFrame {
     }//GEN-LAST:event_BotaoInserirGramaticaActionPerformed
 
     private void BotaoProducoesVaziasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BotaoProducoesVaziasActionPerformed
-        // Percorre todo vetor de produções, já separado e procura por &(vazio)
-        for (int i = 0; i < vProducoes.length; i++) {
-            for (int j = 0; j < vProducoes[i].length(); j++) {
 
-                // Le todo vetor de produções cada um (i) letra por letra (j)
-                if (vProducoes[i].charAt(j) == '&') {
-                    if ("".equals(producoesVazias)) { // Só entra aqui uma vez (Primeira letra)
-                        producoesVazias += vetorNproducoes[i];
-                    } else {
-                        producoesVazias += "," + vetorNproducoes[i]; // (Separa por virgula)
-                    }
+        ClasseNaoTerminal = new NaoTerminal[vNaoTerminais.length];
+
+        for (int i = 0; i < vNaoTerminais.length; i++) {
+            ClasseNaoTerminal[i] = new NaoTerminal();
+            ClasseNaoTerminal[i].setNaoTerminal(vNaoTerminais[i]);
+        }
+
+        for (int i = 0; i < vetorNproducoes.length; i++) {
+            for (int j = 0; j < vNaoTerminais.length; j++) {
+
+                if (ClasseNaoTerminal[j].getNaoTerminal().equals(vetorNproducoes[i])) {
+                    ClasseNaoTerminal[j].setProducoes(vProducoes[i]);
                 }
 
             }
         }
-        vProducaoVazio = producoesVazias.split(","); // Armazena num vetor cada letra não terminal que gera produção vazia
-        producoesVazias = ""; // Limpa para próxima produção
-       
-        // Teste nao ta funcionando ainda
-        String prod = producoes;
-        // Percorre o vetor de produções e depois em "j" percorre cada letra de cada produção[i]
-        // Percorre também o vProducaoVazio(Os não terminais que geram produçoes vazias)
-        for (int i = 0; i < vProducoes.length; i++) {
-            for (int j = 0; j < vProducoes[i].length(); j++) {
-                for (int t = 0; t < vProducaoVazio.length; t++) {
+
+        //gtegteh
+        String auxNaoterminal;
+        String auxprod, aux, inutil = "";
+        ArrayList<String> lis;
+        int tamclas = ClasseNaoTerminal.length;
+        for (int i = 0; i < tamclas; i++) {
+
+            auxNaoterminal = ClasseNaoTerminal[i].getNaoTerminal();
+
+            int tam = ClasseNaoTerminal[i].getProducoes().size();
+
+            for (int j = 0; j < tam; j++) {
+
+                auxprod = ClasseNaoTerminal[i].getProducoes().get(j);
+
+                int tam3 = auxprod.length();
+                for (int t = 0; t < tam3; t++) {
+
+                    if (ClasseNaoTerminal[i] != null) {
+
+                        if (auxprod.charAt(t) == '&') {
+
+                            if (auxprod.replace("&", "").equals("")) {
+
+                                ClasseNaoTerminal[i].getProducoes().remove(j);
+                                tam = ClasseNaoTerminal[i].getProducoes().size();
+
+                                if (ClasseNaoTerminal[i].getProducoes().size() == 0) {
+
+                                    inutil += ClasseNaoTerminal[i].getNaoTerminal();
+                                    ClasseNaoTerminal[i].setNaoTerminal("");
+                                    break;
+                                }
+                            }
+                            if (producoesVazias == "") {
+                                producoesVazias = auxNaoterminal;
+                            } else {
+
+                                producoesVazias += "," + auxNaoterminal;
+                            }
+
+                        }
+
+                    }
+                }
+            }
+        }
+
+        vProducaoVazio = producoesVazias.split(",");
+
+        for (int i = 0; i < ClasseNaoTerminal.length; i++) {
+
+            lis = new ArrayList<>();
+
+            int tam = ClasseNaoTerminal[i].getProducoes().size();
+
+            for (int j = 0; j < tam; j++) {
+
+                aux = ClasseNaoTerminal[i].getProducoes().get(j);
+                if (aux.length() > 0) {
+                    aux = aux.replace("&", "");
+                }
+
+                for (int k = 0; k < inutil.length(); k++) {
+                    aux = aux.replace(inutil.charAt(k) + "", "");
+
+                }
+
+                if (!ClasseNaoTerminal[i].getNaoTerminal().equals("")) {
+                    prod += ClasseNaoTerminal[i].getNaoTerminal() + "-" + aux + "\n";
+
+                    if (!lis.contains(aux)) {
+                        lis.add(aux);
+                    }
+                }
+
+               
+
+                for (int p = 0; p < vProducaoVazio.length; p++) {
+                    for (int t = 0; t < vProducaoVazio.length; t++) {
+
+                        if (p != t) {
+                            for (int l = 0; l < lis.size(); l++) {
+                                if (!lis.contains(lis.get(l).replace(vProducaoVazio[t], ""))) {
+                                    prod += ClasseNaoTerminal[i].getNaoTerminal() + "-" + lis.get(l).replace(vProducaoVazio[t], "") + "\n";
+                                    lis.add(lis.get(l).replace(vProducaoVazio[t], ""));
+
+                                }
+                            }
+                        }
+
+                    }
                    
-                    if (vProducaoVazio[t].charAt(0) == vProducoes[i].charAt(j)) {
-                        // Produções recebe o Não terminal +????
-                        prod += "\n" + vetorNproducoes[i] + "-" + vProducoes[i].replace(vProducaoVazio[t], "");
-                    }
                 }
-                if ('&' == vProducoes[i].charAt(j)) {
-                    prod += "\n" + vetorNproducoes[i] + "-" + vProducoes[i].replace("&", "");
-                }
+
             }
+            ClasseNaoTerminal[i].getProducoes().clear();
+            for(int e = 0; e < lis.size(); e++){
+               ClasseNaoTerminal[i].setProducoes(lis.get(e));
+            }
+
+            System.out.println("t");
         }
-        System.out.println("tetetet: " + prod);
+
         TextGramatica.setText(null);
         TextGramatica.setText(prod);
+        prod = "";
 
     }//GEN-LAST:event_BotaoProducoesVaziasActionPerformed
 
@@ -265,7 +356,7 @@ public class Principal extends javax.swing.JFrame {
     }//GEN-LAST:event_TextTerminaisFocusLost
 
     private void TextNaoTerminaisFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_TextNaoTerminaisFocusLost
-       TextNaoTerminais.setText(TextNaoTerminais.getText().toUpperCase());
+        TextNaoTerminais.setText(TextNaoTerminais.getText().toUpperCase());
     }//GEN-LAST:event_TextNaoTerminaisFocusLost
 
     /**
