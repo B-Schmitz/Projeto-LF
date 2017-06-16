@@ -15,7 +15,9 @@ public class Principal extends javax.swing.JFrame {
     private String[] vTerminais, vNaoTerminais, vProducoes, vetorNproducoes; //(Vetor dos não terminais de todas produções)
     private String[] vProducaoVazio; // (Explique-me)
 
-    NaoTerminal ClasseNaoTerminal[];
+    boolean naoterminal = false,LivreDeUnitaria = true;
+    String unitario = "";
+    private NaoTerminal ClasseNaoTerminal[];
 
     public Principal() {
         initComponents();
@@ -52,6 +54,11 @@ public class Principal extends javax.swing.JFrame {
         });
 
         BotaoProducoesUnitarias.setText("Produções Unitárias");
+        BotaoProducoesUnitarias.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                BotaoProducoesUnitariasActionPerformed(evt);
+            }
+        });
 
         BotaoSimbolosInuteis.setText("Simbolos Inúteis");
 
@@ -184,6 +191,7 @@ public class Principal extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+        
 
     private void BotaoInserirGramaticaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BotaoInserirGramaticaActionPerformed
         simboloInicial = TextSimboloInicial.getText().trim();
@@ -217,12 +225,12 @@ public class Principal extends javax.swing.JFrame {
 
         // Remove o Não-Termimal e o "-" da Produção
         for (int i = 0; i < vProducoes.length; i++) {
-            vProducoes[i] = vProducoes[i].replace(vProducoes[i].charAt(0) + "", "");
-            vProducoes[i] = vProducoes[i].replace(vProducoes[i].charAt(0) + "", "");
+            vProducoes[i] = vProducoes[i].replaceFirst(vProducoes[i].charAt(0) + "", "");
+            vProducoes[i] = vProducoes[i].replaceFirst(vProducoes[i].charAt(0) + "", "");
         }
     }//GEN-LAST:event_BotaoInserirGramaticaActionPerformed
 
-    private void BotaoProducoesVaziasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BotaoProducoesVaziasActionPerformed
+    public void SalvaGramatica() {
 
         //Aqui é definido o tamanho do vetor da classe sendo esse o mesmo tamanho do numero de não terminais
         ClasseNaoTerminal = new NaoTerminal[vNaoTerminais.length];
@@ -248,7 +256,10 @@ public class Principal extends javax.swing.JFrame {
 
             }
         }
+    }
 
+    public void ProducoesVazias() {
+        SalvaGramatica();
         String auxNaoterminal;
         String auxprod, aux, inutil = "";
         ArrayList<String> lis;
@@ -375,8 +386,12 @@ public class Principal extends javax.swing.JFrame {
                 ClasseNaoTerminal[i].setProducoes(lis.get(e));
             }
 
-            System.out.println("t");
         }
+    }
+
+    private void BotaoProducoesVaziasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BotaoProducoesVaziasActionPerformed
+
+        ProducoesVazias();
 
         TextGramatica.setText(null);
         TextGramatica.setText(prod);
@@ -391,6 +406,118 @@ public class Principal extends javax.swing.JFrame {
     private void TextNaoTerminaisFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_TextNaoTerminaisFocusLost
         TextNaoTerminais.setText(TextNaoTerminais.getText().toUpperCase());
     }//GEN-LAST:event_TextNaoTerminaisFocusLost
+
+    //A função ataliza a gramatica após retirar as produções unitarias
+ public void AtualzaGramticaUnitaria(int i){
+     
+    
+      for (int k = 0; k < ClasseNaoTerminal.length; k++) {
+
+                    for (int u = 0; u < unitario.length(); u++) {
+                        if (!ClasseNaoTerminal[k].getNaoTerminal().equals("")) {
+                            if (unitario.charAt(u) == ClasseNaoTerminal[k].getNaoTerminal().charAt(0)) {
+
+                                int tamNovasProd = ClasseNaoTerminal[k].getProducoes().size();
+
+                                //Aqui são adicionadas as novas produções
+                                for (int l = 0; l < tamNovasProd; l++) {
+
+                                    ClasseNaoTerminal[i].setProducoes(ClasseNaoTerminal[k].getProducoes().get(l));
+
+                                }
+
+                            }
+                        }
+
+                    }
+
+                }
+     
+  
+     
+ }
+    public void Unitario() {
+        naoterminal = false;
+        int tamclas = ClasseNaoTerminal.length;
+
+        for (int i = 0; i < tamclas; i++) {
+
+            int tamprod = ClasseNaoTerminal[i].getProducoes().size();
+            for (int j = 0; j < tamprod; j++) {
+
+                //Aqui verifica se o tamanho da produção é igual a 1
+                //se for essa produção é uma possivel produção unitaria 
+                if (ClasseNaoTerminal[i].getProducoes().get(j).length() == 1) {
+
+                    //Esse for() é para verificar se a produção de tamanho 1 é um não terminal
+                    for (int p = 0; p < vNaoTerminais.length; p++) {
+
+                        //É nesse if() que se verifica se é ou não um terminal
+                        //Se for naoterminal = true
+                        //Tambem impede que produções unitarias do tipo: J-J aconteçam.
+                        //Obs: é essa a parte que te perguntei no face não sei o que fazer com essa produção
+                        if (vNaoTerminais[p].equals(ClasseNaoTerminal[i].getProducoes().get(j))&& !vNaoTerminais[p].equals(ClasseNaoTerminal[i].getNaoTerminal())) {
+                            naoterminal = true;
+                            break;
+                        }
+
+                    }
+
+                    //Se naoterminal = true a produção correspondente será adicionada a variavel unitario
+                    //e será removida
+                    if (naoterminal) {
+                        unitario += ClasseNaoTerminal[i].getProducoes().get(j);
+                        ClasseNaoTerminal[i].getProducoes().remove(j);
+                        //Isso é porque o tamanho das produções diminuiu incluseive o j--;
+                        tamprod = ClasseNaoTerminal[i].getProducoes().size();
+                        j--;
+                        naoterminal = false;
+                    }
+
+                }
+
+            }
+            //Aqui verifica se há produções unitarias, se sim chama a função AtualizaGramaticaUnitaria
+            if (unitario.length() > 0) {
+                
+                //Esse LivreDeUnitaria = false; vai servir depois como um parametro informando que não há mais produções unitarias
+                //isso é porque pode haver algo do tipo: J-H  H-K H-ac K-as
+                LivreDeUnitaria = false;
+                AtualzaGramticaUnitaria(i);
+              
+            }
+            unitario = "";
+        }
+        //Nessa parte se a variavel LivreDeUnitaria for igual a false significa qua na gramatica original existe pelo menos uma produção unitaria
+        //nesse caso há a aqui uma recurção chamando mais uma vez a função Unitario() e isso se repete até que não haja nehuma produção unitaria
+        if(!LivreDeUnitaria){
+            LivreDeUnitaria = true;
+            Unitario();
+        }
+    }
+    private void BotaoProducoesUnitariasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BotaoProducoesUnitariasActionPerformed
+
+        SalvaGramatica();
+        ProducoesVazias();
+        Unitario();
+        prod = "";
+
+        for (int i = 0; i < ClasseNaoTerminal.length; i++) {
+            int tamprod = ClasseNaoTerminal[i].getProducoes().size();
+
+            for (int j = 0; j < tamprod; j++) {
+
+                prod += ClasseNaoTerminal[i].getNaoTerminal() + "-" + ClasseNaoTerminal[i].getProducoes().get(j) + "\n";
+
+            }
+        }
+
+        TextGramatica.setText(null);
+        TextGramatica.setText(prod);
+        prod = "";
+
+
+    }//GEN-LAST:event_BotaoProducoesUnitariasActionPerformed
 
     /**
      * @param args the command line arguments

@@ -132,6 +132,9 @@
           <Properties>
             <Property name="text" type="java.lang.String" value="Produ&#xe7;&#xf5;es Unit&#xe1;rias"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="BotaoProducoesUnitariasActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JButton" name="BotaoSimbolosInuteis">
           <Properties>
