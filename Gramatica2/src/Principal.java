@@ -224,13 +224,21 @@ public class Principal extends javax.swing.JFrame {
 
     private void BotaoProducoesVaziasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BotaoProducoesVaziasActionPerformed
 
+        //Aqui é definido o tamanho do vetor da classe sendo esse o mesmo tamanho do numero de não terminais
         ClasseNaoTerminal = new NaoTerminal[vNaoTerminais.length];
 
+        //Esse for() serve para 'rotular' cada posição no vetor da classe
+        //Cada possição vai representar um não terminal
         for (int i = 0; i < vNaoTerminais.length; i++) {
             ClasseNaoTerminal[i] = new NaoTerminal();
             ClasseNaoTerminal[i].setNaoTerminal(vNaoTerminais[i]);
         }
 
+        //Nessa parte estão sendo enviadas as produções pra a classe e será armazenado de acordo com o que o usuario informou
+        //EX: se o usuario informou S-Aa / Ca
+        //                          A-A / &
+        //Nesse exemplo as produções Aa/Ca seram atribuidas a ClasseNaoTerminal[0] que representaria o não terminal :S
+        //E na ClasseNaoTerminal[1] estariam atribuidos as produções A/& e assim por diante
         for (int i = 0; i < vetorNproducoes.length; i++) {
             for (int j = 0; j < vNaoTerminais.length; j++) {
 
@@ -241,33 +249,46 @@ public class Principal extends javax.swing.JFrame {
             }
         }
 
-        //gtegteh
         String auxNaoterminal;
         String auxprod, aux, inutil = "";
         ArrayList<String> lis;
+
         int tamclas = ClasseNaoTerminal.length;
+
         for (int i = 0; i < tamclas; i++) {
 
+            //Aqui em auxNaoterminal é armazenado o não terminal que gera as produções que sarão analizadas
             auxNaoterminal = ClasseNaoTerminal[i].getNaoTerminal();
 
             int tam = ClasseNaoTerminal[i].getProducoes().size();
 
             for (int j = 0; j < tam; j++) {
 
+                //Aqui auxprod recebe uma das produções de um dos nao terminais da ClasseNaoTerminal
                 auxprod = ClasseNaoTerminal[i].getProducoes().get(j);
 
                 int tam3 = auxprod.length();
                 for (int t = 0; t < tam3; t++) {
 
+                    //Não sei se essa parte é necessario
                     if (ClasseNaoTerminal[i] != null) {
 
+                        //Aqui acontece uma verificação da produção analizada caracter por caracter
+                        //buscando por produções vazias
                         if (auxprod.charAt(t) == '&') {
 
+                            //Pensando bem acho q essa parte não é necessaria mas precisso dar uma olhada 
+                            //e de qualquer forma evita alguns erros
                             if (auxprod.replace("&", "").equals("")) {
 
+                                //Nessa parte esata sendo removido a produção vazia, ou seja a produção que posuir o simbolo &
                                 ClasseNaoTerminal[i].getProducoes().remove(j);
                                 tam = ClasseNaoTerminal[i].getProducoes().size();
 
+                                //Depois de excluir a produção, nessa parte verifica-se se ainda há alguma produção
+                                //se nao hover esse simbolo será considerado um simbolo 'inutil'
+                                // Isso acontece quando um nao terminal tem apenas uma produção e essa produção é uma 
+                                //prosução vazia
                                 if (ClasseNaoTerminal[i].getProducoes().size() == 0) {
 
                                     inutil += ClasseNaoTerminal[i].getNaoTerminal();
@@ -275,6 +296,7 @@ public class Principal extends javax.swing.JFrame {
                                     break;
                                 }
                             }
+                            //E aqui são armazenadas as produções vazias
                             if (producoesVazias == "") {
                                 producoesVazias = auxNaoterminal;
                             } else {
@@ -299,33 +321,42 @@ public class Principal extends javax.swing.JFrame {
 
             for (int j = 0; j < tam; j++) {
 
+                //aux está recebemdo uma das produções da ClasseNaoTerminal
                 aux = ClasseNaoTerminal[i].getProducoes().get(j);
+                //Mais uma vez, não tenho certeza se essa verificação ainda é necessaria
                 if (aux.length() > 0) {
                     aux = aux.replace("&", "");
                 }
 
+                //Esse for() é para ja eliminar qualquer simbolo que foi consideado 'inutil'
                 for (int k = 0; k < inutil.length(); k++) {
                     aux = aux.replace(inutil.charAt(k) + "", "");
 
                 }
 
+                //Essa parte é necessario pois se hover algum simbolo que foi considerado inutil na etapa anterior
+                //O não terminal correspondente foi substituido por 'vazio' = ""
                 if (!ClasseNaoTerminal[i].getNaoTerminal().equals("")) {
+                    //Caso o simbolo não for inutil a produção é armazenada
                     prod += ClasseNaoTerminal[i].getNaoTerminal() + "-" + aux + "\n";
 
-                    if (!lis.contains(aux)) {
-                        lis.add(aux);
-                    }
-                }
+                    lis.add(aux);
 
-               
+                }
 
                 for (int p = 0; p < vProducaoVazio.length; p++) {
                     for (int t = 0; t < vProducaoVazio.length; t++) {
 
+                        //È aqui que todas as produções vazias são removidas e todas as posibilidades são feitas
+                        //Esse primeiro if é para garantir que todas as posibilidades com a posição 0,1,2,3,..... aconteçam
                         if (p != t) {
                             for (int l = 0; l < lis.size(); l++) {
+                                //Caso um elemento que não exista na lista seja encontrado
+                                //Ele será adicionado a lista
                                 if (!lis.contains(lis.get(l).replace(vProducaoVazio[t], ""))) {
+
                                     prod += ClasseNaoTerminal[i].getNaoTerminal() + "-" + lis.get(l).replace(vProducaoVazio[t], "") + "\n";
+
                                     lis.add(lis.get(l).replace(vProducaoVazio[t], ""));
 
                                 }
@@ -333,13 +364,15 @@ public class Principal extends javax.swing.JFrame {
                         }
 
                     }
-                   
+
                 }
 
             }
+            //Aqui todas as produções do não terminal analizado até aqui serão apagadas
             ClasseNaoTerminal[i].getProducoes().clear();
-            for(int e = 0; e < lis.size(); e++){
-               ClasseNaoTerminal[i].setProducoes(lis.get(e));
+            //E esse for() mandará a lista de produções atualizada para a ClasseNaoTerminal 
+            for (int e = 0; e < lis.size(); e++) {
+                ClasseNaoTerminal[i].setProducoes(lis.get(e));
             }
 
             System.out.println("t");
