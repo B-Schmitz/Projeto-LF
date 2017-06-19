@@ -15,9 +15,15 @@ public class Principal extends javax.swing.JFrame {
     private String[] vTerminais, vNaoTerminais, vProducoes, vetorNproducoes; //(Vetor dos não terminais de todas produções)
     private String[] vProducaoVazio; // (Explique-me)
 
-    boolean naoterminal = false,LivreDeUnitaria = true;
+    boolean naoterminal = false, LivreDeUnitaria = true;
     String unitario = "";
     private NaoTerminal ClasseNaoTerminal[];
+
+    //  private String GeraTerminaisDiretamente = "";
+    ArrayList<String> GeraTerminais;
+
+    ArrayList<String> ProducoesComTerminais = new ArrayList<>();
+    ArrayList<String> NaoTerminais = new ArrayList<>();
 
     public Principal() {
         initComponents();
@@ -61,6 +67,11 @@ public class Principal extends javax.swing.JFrame {
         });
 
         BotaoSimbolosInuteis.setText("Simbolos Inúteis");
+        BotaoSimbolosInuteis.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                BotaoSimbolosInuteisActionPerformed(evt);
+            }
+        });
 
         BotaoProducoesVazias.setText("Produções Vazias");
         BotaoProducoesVazias.addActionListener(new java.awt.event.ActionListener() {
@@ -191,7 +202,7 @@ public class Principal extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-        
+
 
     private void BotaoInserirGramaticaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BotaoInserirGramaticaActionPerformed
         simboloInicial = TextSimboloInicial.getText().trim();
@@ -408,34 +419,32 @@ public class Principal extends javax.swing.JFrame {
     }//GEN-LAST:event_TextNaoTerminaisFocusLost
 
     //A função ataliza a gramatica após retirar as produções unitarias
- public void AtualzaGramticaUnitaria(int i){
-     
-    
-      for (int k = 0; k < ClasseNaoTerminal.length; k++) {
+    public void AtualzaGramticaUnitaria(int i) {
 
-                    for (int u = 0; u < unitario.length(); u++) {
-                        if (!ClasseNaoTerminal[k].getNaoTerminal().equals("")) {
-                            if (unitario.charAt(u) == ClasseNaoTerminal[k].getNaoTerminal().charAt(0)) {
+        for (int k = 0; k < ClasseNaoTerminal.length; k++) {
 
-                                int tamNovasProd = ClasseNaoTerminal[k].getProducoes().size();
+            for (int u = 0; u < unitario.length(); u++) {
+                if (!ClasseNaoTerminal[k].getNaoTerminal().equals("")) {
+                    if (unitario.charAt(u) == ClasseNaoTerminal[k].getNaoTerminal().charAt(0)) {
 
-                                //Aqui são adicionadas as novas produções
-                                for (int l = 0; l < tamNovasProd; l++) {
+                        int tamNovasProd = ClasseNaoTerminal[k].getProducoes().size();
 
-                                    ClasseNaoTerminal[i].setProducoes(ClasseNaoTerminal[k].getProducoes().get(l));
+                        //Aqui são adicionadas as novas produções
+                        for (int l = 0; l < tamNovasProd; l++) {
 
-                                }
+                            ClasseNaoTerminal[i].setProducoes(ClasseNaoTerminal[k].getProducoes().get(l));
 
-                            }
                         }
 
                     }
-
                 }
-     
-  
-     
- }
+
+            }
+
+        }
+
+    }
+
     public void Unitario() {
         naoterminal = false;
         int tamclas = ClasseNaoTerminal.length;
@@ -456,9 +465,18 @@ public class Principal extends javax.swing.JFrame {
                         //Se for naoterminal = true
                         //Tambem impede que produções unitarias do tipo: J-J aconteçam.
                         //Obs: é essa a parte que te perguntei no face não sei o que fazer com essa produção
-                        if (vNaoTerminais[p].equals(ClasseNaoTerminal[i].getProducoes().get(j))&& !vNaoTerminais[p].equals(ClasseNaoTerminal[i].getNaoTerminal())) {
-                            naoterminal = true;
-                            break;
+                        if (vNaoTerminais[p].equals(ClasseNaoTerminal[i].getProducoes().get(j))) {
+
+                            if (!vNaoTerminais[p].equals(ClasseNaoTerminal[i].getNaoTerminal())) {
+                                naoterminal = true;
+                                break;
+                            } else {
+                                if (ClasseNaoTerminal[i].getProducoes().size() > 1) {
+                                    ClasseNaoTerminal[i].getProducoes().remove(j);
+                                    tamprod = ClasseNaoTerminal[i].getProducoes().size();;
+                                    break;
+                                }
+                            }
                         }
 
                     }
@@ -479,18 +497,18 @@ public class Principal extends javax.swing.JFrame {
             }
             //Aqui verifica se há produções unitarias, se sim chama a função AtualizaGramaticaUnitaria
             if (unitario.length() > 0) {
-                
+
                 //Esse LivreDeUnitaria = false; vai servir depois como um parametro informando que não há mais produções unitarias
                 //isso é porque pode haver algo do tipo: J-H  H-K H-ac K-as
                 LivreDeUnitaria = false;
                 AtualzaGramticaUnitaria(i);
-              
+
             }
             unitario = "";
         }
         //Nessa parte se a variavel LivreDeUnitaria for igual a false significa qua na gramatica original existe pelo menos uma produção unitaria
         //nesse caso há a aqui uma recurção chamando mais uma vez a função Unitario() e isso se repete até que não haja nehuma produção unitaria
-        if(!LivreDeUnitaria){
+        if (!LivreDeUnitaria) {
             LivreDeUnitaria = true;
             Unitario();
         }
@@ -519,7 +537,244 @@ public class Principal extends javax.swing.JFrame {
 
     }//GEN-LAST:event_BotaoProducoesUnitariasActionPerformed
 
-    /**
+    private void BotaoSimbolosInuteisActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BotaoSimbolosInuteisActionPerformed
+
+        SalvaGramatica();
+        GeraTerminais = new ArrayList<>();
+        String auxproducao;
+
+        for (int i = 0; i < ClasseNaoTerminal.length; i++) {
+
+            for (int k = 0; k < ClasseNaoTerminal[i].getProducoes().size(); k++) {
+
+                auxproducao = ClasseNaoTerminal[i].getProducoes().get(k);
+                teste(auxproducao, i);
+
+            }
+
+        }
+        //EliminaProblema();
+
+        teste2();
+
+    }//GEN-LAST:event_BotaoSimbolosInuteisActionPerformed
+
+    public void EliminaProblema() {
+
+        for (int i = 0; i < ClasseNaoTerminal.length; i++) {
+
+            for (int j = 0; j < ClasseNaoTerminal[i].getProducoes().size(); j++) {
+
+                String aux = ClasseNaoTerminal[i].getProducoes().get(j);
+                EliminaTerminais(aux);
+                aux = aux.replaceAll(ClasseNaoTerminal[i].getNaoTerminal(), "");
+                if (aux.length() < 1) {
+
+                    ClasseNaoTerminal[i].getProducoes().remove(j);
+
+                }
+
+            }
+        }
+
+    }
+
+    public void teste2() {
+        String auxproducao;
+
+        for (int i = 0; i < ClasseNaoTerminal.length; i++) {
+
+            for (int k = 0; k < ClasseNaoTerminal[i].getProducoes().size(); k++) {
+
+                auxproducao = ClasseNaoTerminal[i].getProducoes().get(k);
+                TerminalIndiretamente(auxproducao, i, 0);
+
+            }
+
+        }
+    }
+
+    public void teste(String prod, int i) {
+
+        /*   int cont = 0;
+
+        for (int p = 0; p < prod.length(); p++) {
+
+            for (int j = 0; j < vNaoTerminais.length; j++) {
+
+                if (vNaoTerminais[j].charAt(0) == prod.charAt(p)) {
+
+                    cont++;
+                    break;
+                }
+
+            }
+        }*/
+        //  if (0 == cont) {
+        prod = EliminaTerminais(prod);
+
+        if (prod.length() == 0) {
+
+            //  GeraTerminaisDiretamente += ClasseNaoTerminal[i].getNaoTerminal();
+            String aux = ClasseNaoTerminal[i].getNaoTerminal();
+            if (!GeraTerminais.contains(aux)) {
+                GeraTerminais.add(aux);
+            }
+
+        } //else {
+
+        //  TerminalIndiretamente(prod, i , i);
+        /*
+            ProducoesComTerminais.add(prod);
+            NaoTerminais.add(prod);*/
+        //    }
+        // cont = 0;
+    }
+
+    public String EliminaTerminais(String prod) {
+
+        for (int p = 0; p < vTerminais.length; p++) {
+
+            prod = prod.replaceAll(vTerminais[p], "");
+
+        }
+
+        prod = prod.replaceAll("&", "");
+        return prod;
+    }
+
+    public void atualizaInutil() {
+
+        boolean NterminalEsta = false;
+        SalvaGramatica();
+
+        for (int i = 0; i < ClasseNaoTerminal.length; i++) {
+            for (int j = 0; j < GeraTerminais.size(); j++) {
+
+                if (ClasseNaoTerminal[i].getNaoTerminal().equals(GeraTerminais.get(j))) {
+
+                    NterminalEsta = true;
+                    break;
+
+                }
+                if(NterminalEsta){
+                    int tam = ClasseNaoTerminal[i].getProducoes().size();
+                for (int l = 0; l < tam;l++) {
+
+                    String aux = ClasseNaoTerminal[i].getProducoes().get(l);
+                    
+                    EliminaTerminais(aux);
+                    
+                    if (!aux.equals(GeraTerminais.get(j))) {
+
+                       ClasseNaoTerminal[i].getProducoes().get(l);
+                        
+                    }
+
+                }
+                }
+                else if( !ClasseNaoTerminal[i].getNaoTerminal().equals(simboloInicial)){
+                   
+                    ClasseNaoTerminal[i].setNaoTerminal("");
+                    ClasseNaoTerminal[i].getProducoes().clear();
+                    
+                }
+
+            }
+        }
+
+    }
+    
+    //terminar
+    
+
+    public void EstadosAcessiveis() {
+
+        for(int i = 0; i <  ClasseNaoTerminal.length; i ++){
+            
+            for(int j = 0; j < ClasseNaoTerminal[i].getProducoes().size(); j++){
+                
+                
+            }
+        }
+        
+    }
+
+    public void TerminalIndiretamente(String prod, int i, int cont) {
+
+        if (cont > ClasseNaoTerminal.length) {
+            return;
+        }
+        prod = EliminaTerminais(prod);
+        int tam = prod.length();
+        if (tam > 0) {
+
+            for (int j = 0; j < tam; j++) {
+                for (int p = 0; p < GeraTerminais.size(); p++) {
+
+                    if (prod.length() > 0) {
+                        if (GeraTerminais.get(p).charAt(0) == prod.charAt(j)) {
+
+                            prod = prod.replaceAll(prod.charAt(j) + "", "");
+                            tam = prod.length();
+                            cont++;
+                            TerminalIndiretamente(prod, i, cont);
+                        }
+
+                    } else {
+                        return;
+                    }
+                }
+
+                for (int l = 0; l < ClasseNaoTerminal.length; l++) {
+                    if (prod.length() > 0) {
+                        if (ClasseNaoTerminal[l].getNaoTerminal().charAt(0) == prod.charAt(j)) {
+
+                            for (int m = 0; m < ClasseNaoTerminal[l].getProducoes().size(); m++) {
+
+                                prod = prod.replace(ClasseNaoTerminal[l].getNaoTerminal(), ClasseNaoTerminal[l].getProducoes().get(m));
+
+                                prod = prod.replaceAll(ClasseNaoTerminal[l].getNaoTerminal(), "");
+
+                                if (ClasseNaoTerminal[l].getProducoes().size() > 1) {
+                                    cont++;
+                                    TerminalIndiretamente(prod, i, cont);
+                                } else {
+
+                                    prod = prod.replaceAll(ClasseNaoTerminal[l].getNaoTerminal(), "");
+
+                                    if (prod.length() < 1) {
+
+                                        return;
+                                    } else {
+                                        cont++;
+                                        TerminalIndiretamente(prod, i, cont);
+                                    }
+                                }
+
+                            }
+
+                        }
+                    } else {
+                        return;
+                    }
+                }
+
+            }
+
+        } else {
+            String aux = ClasseNaoTerminal[i].getNaoTerminal();
+            if (!GeraTerminais.contains(aux)) {
+
+                GeraTerminais.add(aux);
+
+            }
+            //GeraTerminaisDiretamente += ClasseNaoTerminal[i].getNaoTerminal();
+        }
+
+    }
+
+    /*
      * @param args the command line arguments
      */
     public static void main(String args[]) {
