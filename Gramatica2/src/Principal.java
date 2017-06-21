@@ -271,6 +271,7 @@ public class Principal extends javax.swing.JFrame {
 
     public void ProducoesVazias() {
         SalvaGramatica();
+        producoesVazias = "";
         String auxNaoterminal;
         String auxprod, aux, inutil = "";
         ArrayList<String> lis;
@@ -371,19 +372,21 @@ public class Principal extends javax.swing.JFrame {
 
                         //È aqui que todas as produções vazias são removidas e todas as posibilidades são feitas
                         //Esse primeiro if é para garantir que todas as posibilidades com a posição 0,1,2,3,..... aconteçam
-                        if (p != t) {
+                        
                             for (int l = 0; l < lis.size(); l++) {
                                 //Caso um elemento que não exista na lista seja encontrado
                                 //Ele será adicionado a lista
-                                if (!lis.contains(lis.get(l).replace(vProducaoVazio[t], ""))) {
+                                String teste = lis.get(l).replace(vProducaoVazio[t], "");
+                                if (!lis.contains(teste) && !teste.equals("")) {
 
+                                    
                                     prod += ClasseNaoTerminal[i].getNaoTerminal() + "-" + lis.get(l).replace(vProducaoVazio[t], "") + "\n";
 
                                     lis.add(lis.get(l).replace(vProducaoVazio[t], ""));
 
                                 }
                             }
-                        }
+                        
 
                     }
 
