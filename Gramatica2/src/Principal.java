@@ -546,7 +546,7 @@ public class Principal extends javax.swing.JFrame {
         GeraTerminais = new ArrayList<>();
         String auxproducao;
 
-        for (int i = 0; i < ClasseNaoTerminal.length; i++) {
+       /* for (int i = 0; i < ClasseNaoTerminal.length; i++) {
 
             for (int k = 0; k < ClasseNaoTerminal[i].getProducoes().size(); k++) {
 
@@ -557,7 +557,7 @@ public class Principal extends javax.swing.JFrame {
 
         }
         //EliminaProblema();
-
+*/
         teste2();
 
     }//GEN-LAST:event_BotaoSimbolosInuteisActionPerformed
@@ -574,6 +574,7 @@ public class Principal extends javax.swing.JFrame {
                 if (aux.length() < 1) {
 
                     ClasseNaoTerminal[i].getProducoes().remove(j);
+                    break;
 
                 }
 
@@ -590,7 +591,7 @@ public class Principal extends javax.swing.JFrame {
             for (int k = 0; k < ClasseNaoTerminal[i].getProducoes().size(); k++) {
 
                 auxproducao = ClasseNaoTerminal[i].getProducoes().get(k);
-                TerminalIndiretamente(auxproducao, i, 0);
+                TerminalIndiretamente(auxproducao, i,0);
 
             }
 
@@ -703,9 +704,10 @@ public class Principal extends javax.swing.JFrame {
         
     }
 
-    public void TerminalIndiretamente(String prod, int i, int cont) {
+    public void TerminalIndiretamente(String prod, int i,int cont) {
 
-        if (cont > ClasseNaoTerminal.length) {
+      
+        if(cont > ClasseNaoTerminal.length){
             return;
         }
         prod = EliminaTerminais(prod);
@@ -719,9 +721,11 @@ public class Principal extends javax.swing.JFrame {
                         if (GeraTerminais.get(p).charAt(0) == prod.charAt(j)) {
 
                             prod = prod.replaceAll(prod.charAt(j) + "", "");
+                            
+                         
                             tam = prod.length();
                             cont++;
-                            TerminalIndiretamente(prod, i, cont);
+                            TerminalIndiretamente(prod, i,cont);
                         }
 
                     } else {
@@ -741,7 +745,7 @@ public class Principal extends javax.swing.JFrame {
 
                                 if (ClasseNaoTerminal[l].getProducoes().size() > 1) {
                                     cont++;
-                                    TerminalIndiretamente(prod, i, cont);
+                                    TerminalIndiretamente(prod, i,cont);
                                 } else {
 
                                     prod = prod.replaceAll(ClasseNaoTerminal[l].getNaoTerminal(), "");
@@ -751,7 +755,7 @@ public class Principal extends javax.swing.JFrame {
                                         return;
                                     } else {
                                         cont++;
-                                        TerminalIndiretamente(prod, i, cont);
+                                        TerminalIndiretamente(prod, i,cont);
                                     }
                                 }
 
@@ -770,6 +774,7 @@ public class Principal extends javax.swing.JFrame {
             if (!GeraTerminais.contains(aux)) {
 
                 GeraTerminais.add(aux);
+                System.out.println("ttt: " + aux);
 
             }
             //GeraTerminaisDiretamente += ClasseNaoTerminal[i].getNaoTerminal();
