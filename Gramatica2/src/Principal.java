@@ -1,5 +1,6 @@
 
 import java.util.ArrayList;
+import java.util.Stack;
 
 public class Principal extends javax.swing.JFrame {
 
@@ -21,6 +22,7 @@ public class Principal extends javax.swing.JFrame {
 
     //  private String GeraTerminaisDiretamente = "";
     ArrayList<String> GeraTerminais;
+    ArrayList<String> Acessiveis;
 
     ArrayList<String> ProducoesComTerminais = new ArrayList<>();
     ArrayList<String> NaoTerminais = new ArrayList<>();
@@ -372,21 +374,18 @@ public class Principal extends javax.swing.JFrame {
 
                         //È aqui que todas as produções vazias são removidas e todas as posibilidades são feitas
                         //Esse primeiro if é para garantir que todas as posibilidades com a posição 0,1,2,3,..... aconteçam
-                        
-                            for (int l = 0; l < lis.size(); l++) {
-                                //Caso um elemento que não exista na lista seja encontrado
-                                //Ele será adicionado a lista
-                                String teste = lis.get(l).replace(vProducaoVazio[t], "");
-                                if (!lis.contains(teste) && !teste.equals("")) {
+                        for (int l = 0; l < lis.size(); l++) {
+                            //Caso um elemento que não exista na lista seja encontrado
+                            //Ele será adicionado a lista
+                            String teste = lis.get(l).replace(vProducaoVazio[t], "");
+                            if (!lis.contains(teste) && !teste.equals("")) {
 
-                                    
-                                    prod += ClasseNaoTerminal[i].getNaoTerminal() + "-" + lis.get(l).replace(vProducaoVazio[t], "") + "\n";
+                                prod += ClasseNaoTerminal[i].getNaoTerminal() + "-" + lis.get(l).replace(vProducaoVazio[t], "") + "\n";
 
-                                    lis.add(lis.get(l).replace(vProducaoVazio[t], ""));
+                                lis.add(lis.get(l).replace(vProducaoVazio[t], ""));
 
-                                }
                             }
-                        
+                        }
 
                     }
 
@@ -521,17 +520,11 @@ public class Principal extends javax.swing.JFrame {
         SalvaGramatica();
         ProducoesVazias();
         Unitario();
-        prod = "";
+        armazenaInfo();
+        
+        
 
-        for (int i = 0; i < ClasseNaoTerminal.length; i++) {
-            int tamprod = ClasseNaoTerminal[i].getProducoes().size();
-
-            for (int j = 0; j < tamprod; j++) {
-
-                prod += ClasseNaoTerminal[i].getNaoTerminal() + "-" + ClasseNaoTerminal[i].getProducoes().get(j) + "\n";
-
-            }
-        }
+      
 
         TextGramatica.setText(null);
         TextGramatica.setText(prod);
@@ -540,13 +533,26 @@ public class Principal extends javax.swing.JFrame {
 
     }//GEN-LAST:event_BotaoProducoesUnitariasActionPerformed
 
+    public void armazenaInfo(){
+        prod = "";
+          for (int i = 0; i < ClasseNaoTerminal.length; i++) {
+            int tamprod = ClasseNaoTerminal[i].getProducoes().size();
+
+            for (int j = 0; j < tamprod; j++) {
+
+                prod += ClasseNaoTerminal[i].getNaoTerminal() + "-" + ClasseNaoTerminal[i].getProducoes().get(j) + "\n";
+
+            }
+        }
+    }
+    
     private void BotaoSimbolosInuteisActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BotaoSimbolosInuteisActionPerformed
 
         SalvaGramatica();
         GeraTerminais = new ArrayList<>();
         String auxproducao;
 
-       /* for (int i = 0; i < ClasseNaoTerminal.length; i++) {
+        for (int i = 0; i < ClasseNaoTerminal.length; i++) {
 
             for (int k = 0; k < ClasseNaoTerminal[i].getProducoes().size(); k++) {
 
@@ -556,13 +562,21 @@ public class Principal extends javax.swing.JFrame {
             }
 
         }
-        //EliminaProblema();
-*/
+
         teste2();
+
+        atualizaInutil();
+        EstadosAcessiveis();
+        atualizaInutil();
+        armazenaInfo();
+        
+        TextGramatica.setText(null);
+        TextGramatica.setText(prod);
+        prod = "";
 
     }//GEN-LAST:event_BotaoSimbolosInuteisActionPerformed
 
-    public void EliminaProblema() {
+    /*  public void EliminaProblema() {
 
         for (int i = 0; i < ClasseNaoTerminal.length; i++) {
 
@@ -581,8 +595,7 @@ public class Principal extends javax.swing.JFrame {
             }
         }
 
-    }
-
+    }*/
     public void teste2() {
         String auxproducao;
 
@@ -591,7 +604,7 @@ public class Principal extends javax.swing.JFrame {
             for (int k = 0; k < ClasseNaoTerminal[i].getProducoes().size(); k++) {
 
                 auxproducao = ClasseNaoTerminal[i].getProducoes().get(k);
-                TerminalIndiretamente(auxproducao, i,0);
+                TerminalIndiretamente(auxproducao, i, 0);
 
             }
 
@@ -650,64 +663,108 @@ public class Principal extends javax.swing.JFrame {
     public void atualizaInutil() {
 
         boolean NterminalEsta = false;
+        //por enqunto essa string a baixo vai ficar aqui
+        String NaoGeraTerminais = "";
         SalvaGramatica();
 
         for (int i = 0; i < ClasseNaoTerminal.length; i++) {
             for (int j = 0; j < GeraTerminais.size(); j++) {
 
-                if (ClasseNaoTerminal[i].getNaoTerminal().equals(GeraTerminais.get(j))) {
+                if (GeraTerminais.get(j).equals(ClasseNaoTerminal[i].getNaoTerminal())) {
 
                     NterminalEsta = true;
                     break;
 
                 }
-                if(NterminalEsta){
-                    int tam = ClasseNaoTerminal[i].getProducoes().size();
-                for (int l = 0; l < tam;l++) {
 
-                    String aux = ClasseNaoTerminal[i].getProducoes().get(l);
-                    
-                    EliminaTerminais(aux);
-                    
-                    if (!aux.equals(GeraTerminais.get(j))) {
+            }
 
-                       ClasseNaoTerminal[i].getProducoes().get(l);
-                        
+            if (!NterminalEsta) {
+
+                NaoGeraTerminais += ClasseNaoTerminal[i].getNaoTerminal();
+                ClasseNaoTerminal[i].setNaoTerminal("");
+                ClasseNaoTerminal[i].getProducoes().clear();
+
+            } else {
+                NterminalEsta = false;
+            }
+
+        }
+
+        for (int i = 0; i < ClasseNaoTerminal.length; i++) {
+
+            for (int j = 0; j < ClasseNaoTerminal[i].getProducoes().size(); j++) {
+
+                for (int p = 0; p < NaoGeraTerminais.length(); p++) {
+
+                    String aux = ClasseNaoTerminal[i].getProducoes().get(j);
+
+                    aux = EliminaTerminais(aux);
+                    for (int l = 0; l < aux.length(); l++) {
+                        {
+                            if (aux.charAt(l) == NaoGeraTerminais.charAt(p)) {
+
+                                ClasseNaoTerminal[i].getProducoes().remove(j);
+                             //   j--;
+                                break;
+
+                            }
+                        }
+                    }
+                    if(ClasseNaoTerminal[i].getProducoes().size() == 0){
+                        break;
                     }
 
                 }
-                }
-                else if( !ClasseNaoTerminal[i].getNaoTerminal().equals(simboloInicial)){
-                   
-                    ClasseNaoTerminal[i].setNaoTerminal("");
-                    ClasseNaoTerminal[i].getProducoes().clear();
-                    
-                }
-
             }
         }
-
+            System.out.println("");
     }
-    
-    //terminar
-    
-
-    public void EstadosAcessiveis() {
-
-        for(int i = 0; i <  ClasseNaoTerminal.length; i ++){
-            
-            for(int j = 0; j < ClasseNaoTerminal[i].getProducoes().size(); j++){
-                
-                
-            }
-        }
+    public void naoGera(){
         
     }
 
-    public void TerminalIndiretamente(String prod, int i,int cont) {
+    //terminar
+    public void EstadosAcessiveis() {
+        String prodAux = "";
+        GeraTerminais= new ArrayList<>();
+        Stack pilha = new Stack();
+        GeraTerminais.add(simboloInicial);
+        pilha.push(simboloInicial);
 
-      
-        if(cont > ClasseNaoTerminal.length){
+        String aux = pilha.pop().toString();
+
+        for (int i = 0; i < ClasseNaoTerminal.length; i++) {
+
+            if (ClasseNaoTerminal[i].getNaoTerminal().equals(aux)) {
+
+                for (int j = 0; j < ClasseNaoTerminal[i].getProducoes().size(); j++) {
+
+                    prodAux = ClasseNaoTerminal[i].getProducoes().get(j);
+                    prodAux = EliminaTerminais(prodAux);
+                    for (int p = 0; p < prodAux.length(); p++) {
+
+                        if(!GeraTerminais.contains(prodAux.charAt(p))){
+                        GeraTerminais.add(prodAux.charAt(p)+"");
+                        pilha.push(prodAux.charAt(p));
+                        i = 0;
+                        }
+
+                    }
+
+                }
+            }
+
+            if (!pilha.empty()) {
+                aux = pilha.pop().toString();
+            }
+        }
+        System.out.println("");
+    }
+
+    public void TerminalIndiretamente(String prod, int i, int cont) {
+
+        if (cont > ClasseNaoTerminal.length) {
             return;
         }
         prod = EliminaTerminais(prod);
@@ -721,11 +778,10 @@ public class Principal extends javax.swing.JFrame {
                         if (GeraTerminais.get(p).charAt(0) == prod.charAt(j)) {
 
                             prod = prod.replaceAll(prod.charAt(j) + "", "");
-                            
-                         
+
                             tam = prod.length();
                             cont++;
-                            TerminalIndiretamente(prod, i,cont);
+                            TerminalIndiretamente(prod, i, cont);
                         }
 
                     } else {
@@ -745,7 +801,7 @@ public class Principal extends javax.swing.JFrame {
 
                                 if (ClasseNaoTerminal[l].getProducoes().size() > 1) {
                                     cont++;
-                                    TerminalIndiretamente(prod, i,cont);
+                                    TerminalIndiretamente(prod, i, cont);
                                 } else {
 
                                     prod = prod.replaceAll(ClasseNaoTerminal[l].getNaoTerminal(), "");
@@ -755,7 +811,7 @@ public class Principal extends javax.swing.JFrame {
                                         return;
                                     } else {
                                         cont++;
-                                        TerminalIndiretamente(prod, i,cont);
+                                        TerminalIndiretamente(prod, i, cont);
                                     }
                                 }
 
