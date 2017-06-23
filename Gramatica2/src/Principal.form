@@ -256,6 +256,9 @@
           <Properties>
             <Property name="text" type="java.lang.String" value="Simplifica&#xe7;&#xe3;o Combinada"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="BotaoSimplificacaoActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JFormattedTextField" name="TextSimboloInicial">
           <Properties>

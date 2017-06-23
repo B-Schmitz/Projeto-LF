@@ -119,6 +119,11 @@ public class Principal extends javax.swing.JFrame {
         jScrollPane1.setViewportView(TextProducoes);
 
         BotaoSimplificacao.setText("Simplificação Combinada");
+        BotaoSimplificacao.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                BotaoSimplificacaoActionPerformed(evt);
+            }
+        });
 
         TextSimboloInicial.setBackground(new java.awt.Color(51, 51, 51));
         TextSimboloInicial.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Simbolo Inicial:", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(102, 153, 255))); // NOI18N
@@ -295,43 +300,39 @@ public class Principal extends javax.swing.JFrame {
                 int tam3 = auxprod.length();
                 for (int t = 0; t < tam3; t++) {
 
-                    //Não sei se essa parte é necessario
-                    if (ClasseNaoTerminal[i] != null) {
+                    //Aqui acontece uma verificação da produção analizada caracter por caracter
+                    //buscando por produções vazias
+                    if (auxprod.charAt(t) == '&') {
 
-                        //Aqui acontece uma verificação da produção analizada caracter por caracter
-                        //buscando por produções vazias
-                        if (auxprod.charAt(t) == '&') {
+                        //Pensando bem acho q essa parte não é necessaria mas precisso dar uma olhada 
+                        //e de qualquer forma evita alguns erros
+                        if (auxprod.replace("&", "").equals("")) {
 
-                            //Pensando bem acho q essa parte não é necessaria mas precisso dar uma olhada 
-                            //e de qualquer forma evita alguns erros
-                            if (auxprod.replace("&", "").equals("")) {
+                            //Nessa parte esata sendo removido a produção vazia, ou seja a produção que posuir o simbolo &
+                            ClasseNaoTerminal[i].getProducoes().remove(j);
+                            tam = ClasseNaoTerminal[i].getProducoes().size();
 
-                                //Nessa parte esata sendo removido a produção vazia, ou seja a produção que posuir o simbolo &
-                                ClasseNaoTerminal[i].getProducoes().remove(j);
-                                tam = ClasseNaoTerminal[i].getProducoes().size();
+                            //Depois de excluir a produção, nessa parte verifica-se se ainda há alguma produção
+                            //se nao hover esse simbolo será considerado um simbolo 'inutil'
+                            // Isso acontece quando um nao terminal tem apenas uma produção e essa produção é uma 
+                            //prosução vazia
+                            if (ClasseNaoTerminal[i].getProducoes().size() == 0) {
 
-                                //Depois de excluir a produção, nessa parte verifica-se se ainda há alguma produção
-                                //se nao hover esse simbolo será considerado um simbolo 'inutil'
-                                // Isso acontece quando um nao terminal tem apenas uma produção e essa produção é uma 
-                                //prosução vazia
-                                if (ClasseNaoTerminal[i].getProducoes().size() == 0) {
-
-                                    inutil += ClasseNaoTerminal[i].getNaoTerminal();
-                                    ClasseNaoTerminal[i].setNaoTerminal("");
-                                    break;
-                                }
+                                inutil += ClasseNaoTerminal[i].getNaoTerminal();
+                                ClasseNaoTerminal[i].setNaoTerminal("");
+                                break;
                             }
-                            //E aqui são armazenadas as produções vazias
-                            if (producoesVazias == "") {
-                                producoesVazias = auxNaoterminal;
-                            } else {
+                        }
+                        //E aqui são armazenadas as produções vazias
+                        if (producoesVazias == "") {
+                            producoesVazias = auxNaoterminal;
+                        } else {
 
-                                producoesVazias += "," + auxNaoterminal;
-                            }
-
+                            producoesVazias += "," + auxNaoterminal;
                         }
 
                     }
+
                 }
             }
         }
@@ -348,10 +349,6 @@ public class Principal extends javax.swing.JFrame {
 
                 //aux está recebemdo uma das produções da ClasseNaoTerminal
                 aux = ClasseNaoTerminal[i].getProducoes().get(j);
-                //Mais uma vez, não tenho certeza se essa verificação ainda é necessaria
-                if (aux.length() > 0) {
-                    aux = aux.replace("&", "");
-                }
 
                 //Esse for() é para ja eliminar qualquer simbolo que foi consideado 'inutil'
                 for (int k = 0; k < inutil.length(); k++) {
@@ -361,7 +358,7 @@ public class Principal extends javax.swing.JFrame {
 
                 //Essa parte é necessario pois se hover algum simbolo que foi considerado inutil na etapa anterior
                 //O não terminal correspondente foi substituido por 'vazio' = ""
-                if (!ClasseNaoTerminal[i].getNaoTerminal().equals("")) {
+                if (!ClasseNaoTerminal[i].getNaoTerminal().equals("")&& !aux.equals("")) {
                     //Caso o simbolo não for inutil a produção é armazenada
                     prod += ClasseNaoTerminal[i].getNaoTerminal() + "-" + aux + "\n";
 
@@ -387,12 +384,13 @@ public class Principal extends javax.swing.JFrame {
                             }
                         }
 
+                    
                     }
 
                 }
 
             }
-            //Aqui todas as produções do não terminal analizado até aqui serão apagadas
+            //Aqui todas as produções do não terminal analizado até aqui, serão apagadas
             ClasseNaoTerminal[i].getProducoes().clear();
             //E esse for() mandará a lista de produções atualizada para a ClasseNaoTerminal 
             for (int e = 0; e < lis.size(); e++) {
@@ -404,6 +402,7 @@ public class Principal extends javax.swing.JFrame {
 
     private void BotaoProducoesVaziasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BotaoProducoesVaziasActionPerformed
 
+        //Vazio tem um erro
         ProducoesVazias();
 
         TextGramatica.setText(null);
@@ -517,14 +516,11 @@ public class Principal extends javax.swing.JFrame {
     }
     private void BotaoProducoesUnitariasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BotaoProducoesUnitariasActionPerformed
 
+        //Dando recursiva, precisa olhar
         SalvaGramatica();
         ProducoesVazias();
         Unitario();
         armazenaInfo();
-        
-        
-
-      
 
         TextGramatica.setText(null);
         TextGramatica.setText(prod);
@@ -533,9 +529,9 @@ public class Principal extends javax.swing.JFrame {
 
     }//GEN-LAST:event_BotaoProducoesUnitariasActionPerformed
 
-    public void armazenaInfo(){
+    public void armazenaInfo() {
         prod = "";
-          for (int i = 0; i < ClasseNaoTerminal.length; i++) {
+        for (int i = 0; i < ClasseNaoTerminal.length; i++) {
             int tamprod = ClasseNaoTerminal[i].getProducoes().size();
 
             for (int j = 0; j < tamprod; j++) {
@@ -545,10 +541,24 @@ public class Principal extends javax.swing.JFrame {
             }
         }
     }
-    
+
     private void BotaoSimbolosInuteisActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BotaoSimbolosInuteisActionPerformed
 
+        //Nao sei que nome por aqui kkkk
         SalvaGramatica();
+        semNome();
+        atualizaInutil();
+        EstadosAcessiveis();
+        atualizaInutil();
+        armazenaInfo();
+
+        TextGramatica.setText(null);
+        TextGramatica.setText(prod);
+        prod = "";
+
+    }//GEN-LAST:event_BotaoSimbolosInuteisActionPerformed
+
+    public void semNome() {
         GeraTerminais = new ArrayList<>();
         String auxproducao;
 
@@ -557,47 +567,11 @@ public class Principal extends javax.swing.JFrame {
             for (int k = 0; k < ClasseNaoTerminal[i].getProducoes().size(); k++) {
 
                 auxproducao = ClasseNaoTerminal[i].getProducoes().get(k);
-                teste(auxproducao, i);
+                TerminaisDiretamente(auxproducao, i);
 
             }
 
         }
-
-        teste2();
-
-        atualizaInutil();
-        EstadosAcessiveis();
-        atualizaInutil();
-        armazenaInfo();
-        
-        TextGramatica.setText(null);
-        TextGramatica.setText(prod);
-        prod = "";
-
-    }//GEN-LAST:event_BotaoSimbolosInuteisActionPerformed
-
-    /*  public void EliminaProblema() {
-
-        for (int i = 0; i < ClasseNaoTerminal.length; i++) {
-
-            for (int j = 0; j < ClasseNaoTerminal[i].getProducoes().size(); j++) {
-
-                String aux = ClasseNaoTerminal[i].getProducoes().get(j);
-                EliminaTerminais(aux);
-                aux = aux.replaceAll(ClasseNaoTerminal[i].getNaoTerminal(), "");
-                if (aux.length() < 1) {
-
-                    ClasseNaoTerminal[i].getProducoes().remove(j);
-                    break;
-
-                }
-
-            }
-        }
-
-    }*/
-    public void teste2() {
-        String auxproducao;
 
         for (int i = 0; i < ClasseNaoTerminal.length; i++) {
 
@@ -611,41 +585,38 @@ public class Principal extends javax.swing.JFrame {
         }
     }
 
-    public void teste(String prod, int i) {
+    private void BotaoSimplificacaoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BotaoSimplificacaoActionPerformed
 
-        /*   int cont = 0;
+        SalvaGramatica();
+        ProducoesVazias();
+        semNome();
+        ProducoesVazias();
+        Unitario();
+        armazenaInfo();
+        atualizaInutil();
+        EstadosAcessiveis();
+        atualizaInutil();
+        armazenaInfo();
 
-        for (int p = 0; p < prod.length(); p++) {
+        TextGramatica.setText(null);
+        TextGramatica.setText(prod);
+        prod = "";
 
-            for (int j = 0; j < vNaoTerminais.length; j++) {
 
-                if (vNaoTerminais[j].charAt(0) == prod.charAt(p)) {
+    }//GEN-LAST:event_BotaoSimplificacaoActionPerformed
 
-                    cont++;
-                    break;
-                }
+    public void TerminaisDiretamente(String prod, int i) {
 
-            }
-        }*/
-        //  if (0 == cont) {
         prod = EliminaTerminais(prod);
 
         if (prod.length() == 0) {
 
-            //  GeraTerminaisDiretamente += ClasseNaoTerminal[i].getNaoTerminal();
             String aux = ClasseNaoTerminal[i].getNaoTerminal();
             if (!GeraTerminais.contains(aux)) {
                 GeraTerminais.add(aux);
             }
 
-        } //else {
-
-        //  TerminalIndiretamente(prod, i , i);
-        /*
-            ProducoesComTerminais.add(prod);
-            NaoTerminais.add(prod);*/
-        //    }
-        // cont = 0;
+        }
     }
 
     public String EliminaTerminais(String prod) {
@@ -705,29 +676,23 @@ public class Principal extends javax.swing.JFrame {
                             if (aux.charAt(l) == NaoGeraTerminais.charAt(p)) {
 
                                 ClasseNaoTerminal[i].getProducoes().remove(j);
-                             //   j--;
                                 break;
 
                             }
                         }
                     }
-                    if(ClasseNaoTerminal[i].getProducoes().size() == 0){
+                    if (ClasseNaoTerminal[i].getProducoes().size() == 0) {
                         break;
                     }
 
                 }
             }
         }
-            System.out.println("");
-    }
-    public void naoGera(){
-        
     }
 
-    //terminar
     public void EstadosAcessiveis() {
         String prodAux = "";
-        GeraTerminais= new ArrayList<>();
+        GeraTerminais = new ArrayList<>();
         Stack pilha = new Stack();
         GeraTerminais.add(simboloInicial);
         pilha.push(simboloInicial);
@@ -744,10 +709,10 @@ public class Principal extends javax.swing.JFrame {
                     prodAux = EliminaTerminais(prodAux);
                     for (int p = 0; p < prodAux.length(); p++) {
 
-                        if(!GeraTerminais.contains(prodAux.charAt(p))){
-                        GeraTerminais.add(prodAux.charAt(p)+"");
-                        pilha.push(prodAux.charAt(p));
-                        i = 0;
+                        if (!GeraTerminais.contains(prodAux.charAt(p))) {
+                            GeraTerminais.add(prodAux.charAt(p) + "");
+                            pilha.push(prodAux.charAt(p));
+                            i = 0;
                         }
 
                     }
@@ -833,7 +798,6 @@ public class Principal extends javax.swing.JFrame {
                 System.out.println("ttt: " + aux);
 
             }
-            //GeraTerminaisDiretamente += ClasseNaoTerminal[i].getNaoTerminal();
         }
 
     }
