@@ -1,12 +1,10 @@
 
 import java.util.ArrayList;
 
-
 public class NaoTerminal {
-    
-    
+
     private String NaoTerminal;
-    
+
     private ArrayList<String> producoes = new ArrayList<>();
 
     public String getNaoTerminal() {
