@@ -240,7 +240,7 @@
                   <Color blue="ff" green="ff" red="ff" type="rgb"/>
                 </Property>
                 <Property name="rows" type="int" value="5"/>
-                <Property name="text" type="java.lang.String" value="J-abG&#xa;G-cd&#xa;H-eK&#xa;K-dL&#xa;L-&amp;"/>
+                <Property name="text" type="java.lang.String" value="S-baB&#xa;S-bBcG&#xa;A-baB&#xa;A-a&#xa;B-bFa&#xa;B-aG&#xa;B-&amp;&#xa;E-aE&#xa;E-a&#xa;F-aB&#xa;F-bEa&#xa;G-baG&#xa;G-aGb"/>
                 <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                   <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
                     <TitledBorder title="Produ&#xe7;&#xf5;es:">
