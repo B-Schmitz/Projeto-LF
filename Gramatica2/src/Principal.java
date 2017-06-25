@@ -19,10 +19,12 @@ public class Principal extends javax.swing.JFrame {
 
     //  Private String GeraTerminaisDiretamente = "";
     ArrayList<String> GeraTerminais;
-    ArrayList<String> Acessiveis;
+    ArrayList<String> lista;
 
     ArrayList<String> ProducoesComTerminais = new ArrayList<>();
     ArrayList<String> NaoTerminais = new ArrayList<>();
+
+    Stack pilha;
 
     public Principal() {
         initComponents();
@@ -89,7 +91,7 @@ public class Principal extends javax.swing.JFrame {
 
         TextTerminais.setBackground(new java.awt.Color(51, 51, 51));
         TextTerminais.setForeground(new java.awt.Color(255, 255, 255));
-        TextTerminais.setText("a,b,c,d,e");
+        TextTerminais.setText("a,b,c");
         TextTerminais.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Terminais:", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(102, 153, 255))); // NOI18N
         TextTerminais.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusLost(java.awt.event.FocusEvent evt) {
@@ -99,11 +101,16 @@ public class Principal extends javax.swing.JFrame {
 
         TextNaoTerminais.setBackground(new java.awt.Color(51, 51, 51));
         TextNaoTerminais.setForeground(new java.awt.Color(255, 255, 255));
-        TextNaoTerminais.setText("J,G,H,K,L");
+        TextNaoTerminais.setText("s,a,b,e,f,g");
         TextNaoTerminais.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Não Terminais:", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(102, 153, 255))); // NOI18N
         TextNaoTerminais.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusLost(java.awt.event.FocusEvent evt) {
                 TextNaoTerminaisFocusLost(evt);
+            }
+        });
+        TextNaoTerminais.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                TextNaoTerminaisActionPerformed(evt);
             }
         });
 
@@ -130,7 +137,7 @@ public class Principal extends javax.swing.JFrame {
         } catch (java.text.ParseException ex) {
             ex.printStackTrace();
         }
-        TextSimboloInicial.setText("J");
+        TextSimboloInicial.setText("S");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -268,7 +275,7 @@ public class Principal extends javax.swing.JFrame {
     }
 
     public void ProducoesVazias() {
-        SalvaGramatica();
+
         producoesVazias = "";
         String auxNaoterminal;
         String auxprod, aux, inutil = "";
@@ -295,9 +302,6 @@ public class Principal extends javax.swing.JFrame {
                     // buscando por produções vazias
                     if (auxprod.charAt(t) == '&') {
 
-                        // Pensando bem acho q essa parte não é necessaria mas precisso dar uma olhada 
-                        // e de qualquer forma evita alguns erros
-                        //  if (auxprod.replace("&", "").equals("")) {
                         // Nessa parte está sendo removido a produção vazia, ou seja a produção que possuir o simbolo &
                         ClasseNaoTerminal[i].getProducoes().remove(j);
                         tam = ClasseNaoTerminal[i].getProducoes().size();
@@ -349,27 +353,23 @@ public class Principal extends javax.swing.JFrame {
                 // Essa parte é necessario pois se houver algum simbolo que foi considerado inutil na etapa anterior
                 // O não naoterminal correspondente foi substituido por 'vazio' = ""
                 if (!ClasseNaoTerminal[i].getNaoTerminal().equals("") && !aux.equals("")) {
+                    
                     // Caso o simbolo não for inutil a produção é armazenada
-                    prod += ClasseNaoTerminal[i].getNaoTerminal() + "-" + aux + "\n";
-
                     lis.add(aux);
 
                 }
 
-                for (int p = 0; p < vProducaoVazio.length; p++) {
-                    for (int t = 0; t < vProducaoVazio.length; t++) {
+                for (int t = 0; t < vProducaoVazio.length; t++) {
 
-                        // É aqui que todas as produções vazias são removidas e todas as posibilidades são feitas
-                        // Esse primeiro if é para garantir que todas as posibilidades com a posição 0,1,2,3,..... aconteçam
-                        for (int l = 0; l < lis.size(); l++) {
-                            // Caso um elemento que não exista na lista seja encontrado
-                            // Ele será adicionado a lista
-                            String teste = lis.get(l).replaceFirst(vProducaoVazio[t], "");
-                            if (!lis.contains(teste) && !teste.equals("")) {
+                    // É aqui que todas as produções vazias são removidas e todas as posibilidades são feitas
+                    // Esse primeiro if é para garantir que todas as posibilidades com a posição 0,1,2,3,..... aconteçam
+                    for (int l = 0; l < lis.size(); l++) {
+                        // Caso um elemento que não exista na lista seja encontrado
+                        // Ele será adicionado a lista
+                        String teste = lis.get(l).replaceFirst(vProducaoVazio[t], "");
+                        if (!lis.contains(teste) && !teste.equals("")) {
 
-                                prod += ClasseNaoTerminal[i].getNaoTerminal() + "-" + teste + "\n";
-                                lis.add(lis.get(l).replaceFirst(vProducaoVazio[t], ""));
-                            }
+                            lis.add(lis.get(l).replaceFirst(vProducaoVazio[t], ""));
                         }
                     }
                 }
@@ -387,7 +387,9 @@ public class Principal extends javax.swing.JFrame {
     private void BotaoProducoesVaziasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BotaoProducoesVaziasActionPerformed
 
         //Vazio tem um erro
+        SalvaGramatica();
         ProducoesVazias();
+        armazenaInfo();
         TextGramatica.setText(null);
         TextGramatica.setText(prod);
         prod = "";
@@ -438,7 +440,7 @@ public class Principal extends javax.swing.JFrame {
                     // Esse for() é para verificar se a produção de tamanho 1 é um não naoterminal
                     for (int p = 0; p < vNaoTerminais.length; p++) {
 
-                        // É nesse if() que se verifica se é ou não um naoterminal
+                        // É nesse if() que se verifica se é ou não um não-terminal
                         // Se for naoterminal = true
                         // Tambem impede que produções unitarias do tipo: J-J aconteçam.
                         if (vNaoTerminais[p].equals(ClasseNaoTerminal[i].getProducoes().get(j))) {
@@ -477,10 +479,10 @@ public class Principal extends javax.swing.JFrame {
                 LivreDeUnitaria = false;
                 AtualzaGramticaUnitaria(i);
             }
-            
+
             unitario = "";
         }
-        
+
         // Nessa parte se a variavel LivreDeUnitaria for igual a false significa qua na gramatica original existe pelo menos uma produção unitaria
         // nesse caso há a aqui uma recurção chamando mais uma vez a função Unitario() e isso se repete até que não haja nehuma produção unitaria
         if (!LivreDeUnitaria) {
@@ -490,7 +492,6 @@ public class Principal extends javax.swing.JFrame {
     }
     private void BotaoProducoesUnitariasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BotaoProducoesUnitariasActionPerformed
 
-        // Dando recursiva, precisa olhar
         SalvaGramatica();
         ProducoesVazias();
         Unitario();
@@ -510,6 +511,7 @@ public class Principal extends javax.swing.JFrame {
 
             for (int j = 0; j < tamprod; j++) {
 
+                // Aqui só esta passando para a variavel prod toda a gramatica ja formatada e que será imprimida.
                 prod += ClasseNaoTerminal[i].getNaoTerminal() + "-" + ClasseNaoTerminal[i].getProducoes().get(j) + "\n";
             }
         }
@@ -517,9 +519,9 @@ public class Principal extends javax.swing.JFrame {
 
     private void BotaoSimbolosInuteisActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BotaoSimbolosInuteisActionPerformed
 
-        //Nao sei que nome por aqui kkkk
         SalvaGramatica();
-        semNome();
+        VerificaGeraTerminais();
+        SalvaGramatica();
         atualizaInutil();
         EstadosAcessiveis();
         atualizaInutil();
@@ -531,10 +533,16 @@ public class Principal extends javax.swing.JFrame {
 
     }//GEN-LAST:event_BotaoSimbolosInuteisActionPerformed
 
-    public void semNome() {
+    public void VerificaGeraTerminais() {
         GeraTerminais = new ArrayList<>();
         String auxproducao;
 
+        // Esse primeiro conjunto de for's() manda para a função  TerminaisDiretamente(auxproducao, i);
+        // o não-terminal analizado e suas produçoes, elas são mandadas uma a uma até que todas as produções 
+        // sejam analizadas, após as produções do terminal forem todas analizadas, o proximo não-terminal será
+        // mandado junco com suas produções e assim segue sucessivamete até que todos os não-terminais e suas
+        // produções sejam analizadas.
+        //Função para verificar se há produções que geram terminais diretamente
         for (int i = 0; i < ClasseNaoTerminal.length; i++) {
 
             for (int k = 0; k < ClasseNaoTerminal[i].getProducoes().size(); k++) {
@@ -543,26 +551,30 @@ public class Principal extends javax.swing.JFrame {
             }
         }
 
+        //Essa parte é igual a anterior só dessa vez esta chamando a função TerminalIndiretamente(auxproducao, i);
+        //Dessa vez verifica indiretamente
         for (int i = 0; i < ClasseNaoTerminal.length; i++) {
+            lista = new ArrayList<>();
+            lista.add(ClasseNaoTerminal[i].getNaoTerminal());
 
             for (int k = 0; k < ClasseNaoTerminal[i].getProducoes().size(); k++) {
 
                 auxproducao = ClasseNaoTerminal[i].getProducoes().get(k);
-                TerminalIndiretamente(auxproducao, i, 0);
+                TerminalIndiretamente(auxproducao, i);
 
             }
 
         }
+        System.out.println("");
     }
 
     private void BotaoSimplificacaoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BotaoSimplificacaoActionPerformed
 
         SalvaGramatica();
         ProducoesVazias();
-        semNome();
-        ProducoesVazias();
         Unitario();
-        armazenaInfo();
+
+        VerificaGeraTerminais();
         atualizaInutil();
         EstadosAcessiveis();
         atualizaInutil();
@@ -575,8 +587,15 @@ public class Principal extends javax.swing.JFrame {
 
     }//GEN-LAST:event_BotaoSimplificacaoActionPerformed
 
+    private void TextNaoTerminaisActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_TextNaoTerminaisActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_TextNaoTerminaisActionPerformed
+
     public void TerminaisDiretamente(String prod, int i) {
 
+        // Essa função é chamada para que não haja a necessidade de se verificar se a posição
+        // da produção que está sendo representada pela variavel "prod" é igual a um não-terminal
+        // uma vez que se todos os terminais de uma produção forem eliminados só restará não-terminais.
         prod = EliminaTerminais(prod);
 
         if (prod.length() == 0) {
@@ -591,6 +610,7 @@ public class Principal extends javax.swing.JFrame {
 
     public String EliminaTerminais(String prod) {
 
+        //Essa função serve para retirar todos os terminais
         for (int p = 0; p < vTerminais.length; p++) {
 
             prod = prod.replaceAll(vTerminais[p], "");
@@ -606,18 +626,28 @@ public class Principal extends javax.swing.JFrame {
         boolean NterminalEsta = false;
         // Por enquanto essa string a baixo vai ficar aqui
         String NaoGeraTerminais = "";
-        SalvaGramatica();
 
         for (int i = 0; i < ClasseNaoTerminal.length; i++) {
+
             for (int j = 0; j < GeraTerminais.size(); j++) {
 
+                // Caso ClasseNaoTerminal[i].getNaoTerminal() for encontrado na lista GeraTerminais
+                // esse simbolo será ignorado e não será modificado
                 if (GeraTerminais.get(j).equals(ClasseNaoTerminal[i].getNaoTerminal())) {
 
                     NterminalEsta = true;
+                    // Se entrou aqui significa que está na lista GeraTerminais
+                    // por isso não há a necessidade de continuar, por isso o break
+                    // para parar o for().
                     break;
                 }
             }
-            
+
+            // Se não estiver na lista será adicionado a variavel "NaoGeraTerminais"
+            // e o não terminal e suas produções serão apagadas
+            // Obs: a variavel "NaoGeraTerminais" será utilizada para eliminar as
+            // produções dos outros não-terminais que possuirem pelo menos um dos
+            // não-terminais existentes na variavel "NaoGeraTerminais"
             if (!NterminalEsta) {
 
                 NaoGeraTerminais += ClasseNaoTerminal[i].getNaoTerminal();
@@ -638,17 +668,28 @@ public class Principal extends javax.swing.JFrame {
 
                     String aux = ClasseNaoTerminal[i].getProducoes().get(j);
 
+                    // Elimina qualquer terminal existe na produção, assim não há a necessidade
+                    // de verificar se a posição verificada da produção é ou nao um não-terminal
                     aux = EliminaTerminais(aux);
                     for (int l = 0; l < aux.length(); l++) {
                         {
+                            // Aqui está comparando cada posição da produção com a lista de
+                            // não-terminais que não geram terminais.
                             if (aux.charAt(l) == NaoGeraTerminais.charAt(p)) {
 
+                                // Caso encontre, essa produção será removida
                                 ClasseNaoTerminal[i].getProducoes().remove(j);
+                                // Isso é porque o numero de produções diminuiu
+                                j--;
+                                // E o break é porque não há mais a necesidade de buscar
+                                // não-terminais dentro da produção, uma vez que a mesma
+                                // ja foi excluida.
                                 break;
 
                             }
                         }
                     }
+                    // Isso é se não houver mais produções, ou seja se todas as produções de um não-terminal forem excluias
                     if (ClasseNaoTerminal[i].getProducoes().size() == 0) {
                         break;
                     }
@@ -659,62 +700,123 @@ public class Principal extends javax.swing.JFrame {
     }
 
     public void EstadosAcessiveis() {
-        String prodAux = "";
+        
+        // A lista GeraTerminais será usada dessa vez para armazenar estados acessiveis
+        // Assim é possivel utilizar o metodo atualizaInutil, não precisando criar um novo método.
         GeraTerminais = new ArrayList<>();
-        Stack pilha = new Stack();
+        pilha = new Stack();
+        // Adiciona o simbolo inicial a GeraTerminais(Lembrando q apesar do nome estaremos armazenando estados acessiveis nessa lista)
         GeraTerminais.add(simboloInicial);
+        // E tambem é adicionado a uma pilha
         pilha.push(simboloInicial);
 
-        String aux = pilha.pop().toString();
+        // Agora o ultimo elemento da pilha é eliminado e adicionado a variavel "aux"
+        String aux;
 
-        for (int i = 0; i < ClasseNaoTerminal.length; i++) {
+        do {
+            aux = pilha.pop().toString();
+            for (int i = 0; i < ClasseNaoTerminal.length; i++) {
+                 // Se entrar nesse if() achou o não-terminal correspondente ao não-terminal que esta em aux
+                if (ClasseNaoTerminal[i].getNaoTerminal().equals(aux)) {
 
-            if (ClasseNaoTerminal[i].getNaoTerminal().equals(aux)) {
+                    // Aqui é mandado a posição do não-terminal para pegar dentro das produções dele
+                    // os não terminais que ele alcança
+                    teste(i, aux);
 
-                for (int j = 0; j < ClasseNaoTerminal[i].getProducoes().size(); j++) {
-
-                    prodAux = ClasseNaoTerminal[i].getProducoes().get(j);
-                    prodAux = EliminaTerminais(prodAux);
-                    for (int p = 0; p < prodAux.length(); p++) {
-
-                        if (!GeraTerminais.contains(prodAux.charAt(p))) {
-                            GeraTerminais.add(prodAux.charAt(p) + "");
-                            pilha.push(prodAux.charAt(p));
-                           // i = 0;
-                        }
-
-                    }
+                    // O break é para reiniciar o for() pois o proximo não-terminal da pilha
+                    // pode estar nas posições anteriores
+                    break;
 
                 }
+
             }
 
-            if (!pilha.empty()) {
-                aux = pilha.pop().toString();
-            }
-        }
-        System.out.println("");
+            
+        } while (!pilha.empty());
     }
 
-    public void TerminalIndiretamente(String prod, int i, int cont) {
+    public void teste(int i, String aux) {
 
-        if (cont > ClasseNaoTerminal.length) {
-            return;
+        String prodAux;
+        for (int j = 0; j < ClasseNaoTerminal[i].getProducoes().size(); j++) {
+
+            // Pega uma produção do não-terminal analizado
+            prodAux = ClasseNaoTerminal[i].getProducoes().get(j);
+
+            // Elimina terminais
+            // Mais uma vez, apenas os não-terminais é que importam
+            prodAux = EliminaTerminais(prodAux);
+            for (int p = 0; p < prodAux.length(); p++) {
+
+                // Se o não-terminal ainda não estiver na lista de GeraTerminais esse será adicionado
+                // tambem será adicionado a pilha
+                if (!GeraTerminais.contains(prodAux.charAt(p) + "")) {
+                    GeraTerminais.add(prodAux.charAt(p) + "");
+                    pilha.push(prodAux.charAt(p));
+                }
+
+            }
+
         }
+
+    }
+
+    public void TerminalIndiretamente(String prod, int i) {
+
+        // Essa função é chamada para que não haja a necessidade de se verificar se a posição
+        // da produção que está sendo representada pela variavel "prod" é igual a um não-terminal
+        // uma vez que se todos os terminais de uma produção forem eliminados só restará não-terminais.
         prod = EliminaTerminais(prod);
         int tam = prod.length();
+        // Esse if() é para verificar se prod não está vazio, se estiver significa que a produção foi eliminada 
+        // na etapa anterior pos só haviam terminais na produção.
         if (tam > 0) {
 
             for (int j = 0; j < tam; j++) {
                 for (int p = 0; p < GeraTerminais.size(); p++) {
 
                     if (prod.length() > 0) {
+                        // Esse if() verifaca se o não-terminal analizado da produção
+                        // já está na lista dos que geram terminais.
                         if (GeraTerminais.get(p).charAt(0) == prod.charAt(j)) {
 
+                            // Caso o não-terminal analizado esteja na lista todas as ocorrencias
+                            // existentes na produção analizada serão apagadas atráves do replaceAll();
+                            // isso porque não há a necesidade de analiza-lo pois já foi constatado
+                            // que ele gera terminais diretamente (analizado em uma etapa anterior)
+                            // ou indiretamente dentro dessa mesma função.
                             prod = prod.replaceAll(prod.charAt(j) + "", "");
 
+                            // Isso é porque a produção diminuiu de tamanho
                             tam = prod.length();
-                            cont++;
-                            TerminalIndiretamente(prod, i, cont);
+                            if (j > 0) {
+                                j--;
+                            }
+                            // Essa "lista" é para evitar loop, toda vez que um não-terminal encontrado
+                            // não estiver na lista esse é adicionado a lista
+                            // isso serve para que se um não-terminal da produção analizada começar a se repetrir
+                            // não ficar em loop.
+                            if (!lista.contains(GeraTerminais.get(p))) {
+                                lista.add(GeraTerminais.get(p));
+
+                                // Aqui vai chamar uma recurssiva mandando a posição do não-terminal que está gerando
+                                // essa produção e a produçao após a verificação se há um não-terminal que esteja na lista
+                                // GeraTerminais
+                                // Ex1: A-aG , GeraTerminais[G,T,...] essa produção após passar pela eliminação
+                                // dos terminais sobrará apenas A-G e com G esta na lista de nãoterminais essa
+                                // essa produção ficará A-"" nesse caso será mandado na recurção "" (Vazio).
+                                // EX2:  A-aGT , GeraTerminais[G,T,...] ja nesse caso a produção que seria enviada na recurção
+                                // será "T".
+                                TerminalIndiretamente(prod, i);
+
+                            } // Se o simbolo verificado estiver na lista simplismente retorna, não há porque continuar
+                            // caso contrario poderia dar loop.
+                            else {
+                                return;
+                            }
+
+                            // "prod" pode estar menor, por isso tam = prod.length();
+                            tam = prod.length();
                         }
 
                     } else {
@@ -723,31 +825,30 @@ public class Principal extends javax.swing.JFrame {
                 }
 
                 for (int l = 0; l < ClasseNaoTerminal.length; l++) {
+
+                    // Isso é para não dar erro de index
                     if (prod.length() > 0) {
+
+                        // Se ClasseNaoTerminal[l].getNaoTerminal() for igual a posição analizada da produção ele entra.
                         if (ClasseNaoTerminal[l].getNaoTerminal().charAt(0) == prod.charAt(j)) {
 
-                            for (int m = 0; m < ClasseNaoTerminal[l].getProducoes().size(); m++) {
+                            //Aqui novamente....
+                            // Essa "lista" é para evitar loop, toda vez que um não-terminal encontrado
+                            // não estiver na lista esse é adicionado a lista
+                            // isso serve para que se um não-terminal da produção analizada começar a se repetrir
+                            // não ficar em loop.
+                            if (!lista.contains(ClasseNaoTerminal[l].getNaoTerminal())) {
 
-                                prod = prod.replace(ClasseNaoTerminal[l].getNaoTerminal(), ClasseNaoTerminal[l].getProducoes().get(m));
+                                lista.add(ClasseNaoTerminal[l].getNaoTerminal());
 
-                                prod = prod.replaceAll(ClasseNaoTerminal[l].getNaoTerminal(), "");
+                                for (int m = 0; m < ClasseNaoTerminal[l].getProducoes().size(); m++) {
 
-                                if (ClasseNaoTerminal[l].getProducoes().size() > 1) {
-                                    cont++;
-                                    TerminalIndiretamente(prod, i, cont);
-                                } else {
+                                    // Nessa parte está sendo substituido o não-terminal encontrado na produção por uma de  suas produções
+                                    prod = prod.replace(ClasseNaoTerminal[l].getNaoTerminal(), ClasseNaoTerminal[l].getProducoes().get(m));
 
-                                    prod = prod.replaceAll(ClasseNaoTerminal[l].getNaoTerminal(), "");
+                                    TerminalIndiretamente(prod, i);
 
-                                    if (prod.length() < 1) {
-
-                                        return;
-                                    } else {
-                                        cont++;
-                                        TerminalIndiretamente(prod, i, cont);
-                                    }
                                 }
-
                             }
 
                         }
@@ -758,12 +859,13 @@ public class Principal extends javax.swing.JFrame {
 
             }
 
-        } else {
+        } // Se "prod" = "" (Vazio) siginifica que o não-terminal que está chamando as produções
+        // gera terminais.
+        else {
             String aux = ClasseNaoTerminal[i].getNaoTerminal();
             if (!GeraTerminais.contains(aux)) {
 
                 GeraTerminais.add(aux);
-                System.out.println("ttt: " + aux);
 
             }
         }
